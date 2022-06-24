@@ -61,7 +61,7 @@ runs:
 
     - if: ${{ steps.template_updated.outputs.updated == ''}}
       name: Reset .pot file/file
-      run: git reset ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot
+      run: git checkout -- ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot
       shell: bash
 
     - if: ${{ steps.template_updated.outputs.updated }}
