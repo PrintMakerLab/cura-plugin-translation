@@ -33,7 +33,7 @@ runs:
 
     - name: "Check template file exists"
       id: template_exist
-      run: echo "::set-output name=exists::$(test -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot)"
+      run: echo "::set-output name=exists::$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo "true")"
       shell: bash
 
     - name: "File exists?"
