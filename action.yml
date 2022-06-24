@@ -36,18 +36,10 @@ runs:
       run: echo "::set-output name=exists::$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo "true")"
       shell: bash
 
-    - name: "File exists?"
-      run: echo ${{ steps.template_exist.outputs.exists }}
-      shell: bash
-
-    - name: "LS"
-      run: ls
-      shell: bash
-
     - name: Hash current pot messages
       if: ${{ steps.template_exist.outputs.exists }}
       id: hash_before
-      run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
+      run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
       shell: bash
 
     - name: Update .pot from Python files
@@ -61,10 +53,10 @@ runs:
     - name: Hash new pot messages
       if: ${{ steps.template_exist.outputs.exists }}
       id: hash_after
-      run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' ${{ inputs.translation_folder }}/*.pot | sort | sha1sum)"
+      run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/*.pot | sort | sha1sum)"
       shell: bash
 
     - name: Set output value # добавить условие если .pot не было
       id: template_updated
-      run: echo "##[set-output name=updated;]$(${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}})"
+      run: echo "::set-output name=updated::$(${{ steps.template_exist.outputs.exists ? steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash : "true"}})"
       shell: bash
