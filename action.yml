@@ -58,5 +58,5 @@ runs:
 
     - name: Set output value # добавить условие если .pot не было
       id: template_updated
-      run: echo "##[set-output name=i18n_hash;]$(${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}})"
+      run: echo "##[set-output name=updated;]$(${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}})"
       shell: bash
