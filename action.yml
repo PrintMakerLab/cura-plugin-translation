@@ -29,6 +29,7 @@ runs:
 
     - name: "Ensure translation folder exists"
       run: mkdir -p "${{ inputs.translation_folder }}"
+      shell: bash
 
     - name: "Check template file exists"
       id: template_exist
@@ -39,17 +40,21 @@ runs:
       if: ${{steps.template_exist.outputs.exists
       id: hash_before
       run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot | sort | sha1sum)"
+      shell: bash
 
     - name: Update .pot from Python files
       run: xgettext --package-name='"${{ inputs.plugin_name }}"' -o "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot                 --language=python     --from-code=UTF-8 -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 $(find -L . -name \*.py)
+      shell: bash
 
     - name: Update .pot from QML files
       run: xgettext --package-name='"${{ inputs.plugin_name }}"' -o "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot --join-existing --language=javascript --from-code=UTF-8 -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 $(find -L . -name \*.qml)
+      shell: bash
 
     - name: Hash new pot messages
       if: ${{steps.template_exist.outputs.exists
       id: hash_after
       run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' i18n/*.pot | sort | sha1sum)"
+      shell: bash
 
     - name: Set output value
       id: template_updated
