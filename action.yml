@@ -33,7 +33,7 @@ runs:
 
     - name: "Check template file exists"
       id: template_exist
-      run: echo "##[set-output name=i18n_hash;]$(test -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot)"
+      run: echo "##[set-output name=exists;]$(test -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot)"
       shell: bash
 
     - name: Hash current pot messages
