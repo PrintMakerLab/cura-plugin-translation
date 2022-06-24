@@ -76,3 +76,6 @@ runs:
         find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec msgfmt {}/${{ inputs.translation_name }}.po -o {}/LC_MESSAGES/${{ inputs.translation_name }}.mo \;
         echo "::set-output name=updated::1"
       shell: bash
+
+    - name: Event viewer
+      run: echo "The ${{ github.event_name }} event triggered this step."
