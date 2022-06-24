@@ -1,6 +1,6 @@
 # Translate Cura plugin 
 
-A github workflow action that creates creates and updates translation files for Cura plugin source repositories.
+A github workflow action that creates and updates translation files for Cura plugin source repositories.
 
 ## Inputs
 
