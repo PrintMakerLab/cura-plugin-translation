@@ -36,6 +36,10 @@ runs:
       run: echo "##[set-output name=exists;]$(test -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot)"
       shell: bash
 
+    - name: "File exists?"
+      run: echo ${{ steps.template_exist.outputs.exists }}
+      shell: bash
+
     - name: Hash current pot messages
       if: ${{ steps.template_exist.outputs.exists }}
       id: hash_before
