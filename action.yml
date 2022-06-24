@@ -37,7 +37,7 @@ runs:
       shell: bash
 
     - name: Hash current pot messages
-      if: ${{steps.template_exist.outputs.exists
+      if: ${{ steps.template_exist.outputs.exists }}
       id: hash_before
       run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
       shell: bash
@@ -51,12 +51,12 @@ runs:
       shell: bash
 
     - name: Hash new pot messages
-      if: ${{steps.template_exist.outputs.exists
+      if: ${{ steps.template_exist.outputs.exists }}
       id: hash_after
       run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' ${{ inputs.translation_folder }}/*.pot | sort | sha1sum)"
       shell: bash
 
-    - name: Set output value
+    - name: Set output value # добавить условие если .pot не было
       id: template_updated
       run: "::set-output name=updated::${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}}"
       shell: bash
