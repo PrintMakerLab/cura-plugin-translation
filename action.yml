@@ -1,7 +1,7 @@
 name: 'Translate Cura plugin'
 description: 'Create and update translation of the Cura plugin'
 inputs:
-  translation_folder: # path for the translation directory usually i18n
+  translation_folder: # path to the translation directory usually i18n
     description: 'translation folder of the Cura plugin'
     required: true
     default: 'i18n'
