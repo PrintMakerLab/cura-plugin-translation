@@ -67,10 +67,12 @@ runs:
     - if: ${{ steps.template_exist.outputs.exists }}
       id: mo_update_neened
       uses: jitterbit/get-changed-files@v1
-      run: |
+
+    - run: |
         for ${{ inputs.translation_folder }}/**/${{ inputs.translation_name }}.po in ${{ steps.mo_update_neened.outputs.added_modified }}; do
           echo "Do something with this ${changed_file}."
         done
+      shell: bash
 
     - if: ${{steps.template_updated.outputs.updated}} #добавить условие на изменение .po файлов
       name: Ensure LC_MESSAGES folder exists
