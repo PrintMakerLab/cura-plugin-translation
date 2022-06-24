@@ -1,0 +1,57 @@
+name: 'Translate Cura plugin'
+description: 'Create and update translation of the Cura plugin'
+inputs:
+  translation_folder: # path for the translation directory usually i18n
+    description: 'translation folder of the Cura plugin'
+    required: true
+    default: 'i18n'
+  translation_name: # name of the translation template and locale files (will be used to include translation)
+    description: 'translation template and locale files name'
+    required: true
+  plugin_name:
+    description: 'plugin name'
+    required: true
+outputs:
+  template_updated:
+    description: ".pot template updated"
+    value: ${{ steps.template_updated.outputs.updated }}
+  # locales_updated:
+  #   description: ".mo file/files updated"
+  #   value: ${{ steps.TODO.outputs.TODO }}
+runs:
+  using: "composite"
+  steps:
+    - uses: ConorMacBride/install-package@v1
+        with:
+          apt: gettext
+    
+    - uses: actions/checkout@v3
+
+    - name: "Ensure translation folder exists"
+      run: mkdir -p "${{ inputs.translation_folder }}"
+
+    - name: "Check template file exists"
+      id: template_exist
+      run: "::set-output name=exists::$(-e "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot)"
+      shell: bash
+
+    - name: Hash current pot messages
+      if: ${{steps.template_exist.outputs.exists
+      id: hash_before
+      run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot | sort | sha1sum)"
+
+    - name: Update .pot from Python files
+      run: xgettext --package-name='"${{ inputs.plugin_name }}"' -o "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot                 --language=python     --from-code=UTF-8 -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 $(find -L . -name \*.py)
+
+    - name: Update .pot from QML files
+      run: xgettext --package-name='"${{ inputs.plugin_name }}"' -o "${{ inputs.translation_folder }}"/"${{ inputs.translation_name }}".pot --join-existing --language=javascript --from-code=UTF-8 -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 $(find -L . -name \*.qml)
+
+    - name: Hash new pot messages
+      if: ${{steps.template_exist.outputs.exists
+      id: hash_after
+      run: echo "##[set-output name=i18n_hash;]$(grep '^msgid' i18n/*.pot | sort | sha1sum)"
+
+    - name: Set output value
+      id: template_updated
+      run: "::set-output name=updated::${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}}"
+      shell: bash
