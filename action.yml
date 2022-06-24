@@ -53,43 +53,41 @@ runs:
       run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
       shell: bash
 
-    - if: ${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}}
+    - if: ${{ steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash }}
       name: Set output value
       id: template_updated
       run: echo "::set-output name=updated::1"
       shell: bash
 
-    - if: ${{steps.template_updated.outputs.updated}}
+    - if: ${{ steps.template_updated.outputs.updated }}
       name: Update .po files
       run: find ${{ inputs.translation_folder }} -name ${{ inputs.translation_name }}.po -exec msgmerge --update {} --backup=none ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot \;
       shell: bash
 
     - if: ${{ steps.template_exist.outputs.exists }}
-      id: mo_update_neened
+      id: files
       uses: jitterbit/get-changed-files@v1
 
-    - run: |
-        for changed_file in ${{ steps.mo_update_neened.outputs.added_modified }}; do
+    - name: Check if .po files was changed by commit
+      id: mo_update_neened
+      run: |
+        for changed_file in ${{ steps.files.outputs.added_modified }}; do
           if [[ ${changed_file} == *${{ inputs.translation_name }}.po ]]
           then
-            echo .po file
+            echo "::set-output name=needed::1"
           fi
         done
       shell: bash
 
-    - if: ${{steps.template_updated.outputs.updated}} #добавить условие на изменение .po файлов
+    - if: ${{ steps.template_updated.outputs.updated || steps.mo_update_neened.outputs.needed }}
       name: Ensure LC_MESSAGES folder exists
       run: find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec mkdir -p {}/LC_MESSAGES \;
       shell: bash
 
-    - if: ${{steps.template_updated.outputs.updated}} #добавить условие на изменение .po файлов
+    - if: ${{ steps.template_updated.outputs.updated || steps.mo_update_neened.outputs.needed }}
       name: Update .mo files
       id: locale_updated
       run: |
         find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec msgfmt {}/${{ inputs.translation_name }}.po -o {}/LC_MESSAGES/${{ inputs.translation_name }}.mo \;
         echo "::set-output name=updated::1"
-      shell: bash
-
-    - name: Event viewer
-      run: echo "The ${{ github.event_name }} event triggered this step. ${{ github }}"
       shell: bash
