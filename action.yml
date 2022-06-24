@@ -70,7 +70,7 @@ runs:
 
     - run: |
         for changed_file in ${{ steps.mo_update_neened.outputs.added_modified }}; do
-          if [[ ${changed_file} ==  ${{ inputs.translation_name }}.po ]]
+          if [[ ${changed_file} == *${{ inputs.translation_name }}.po ]]
           then
             echo .po file
           fi
