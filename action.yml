@@ -50,7 +50,7 @@ runs:
 
     - name: Hash new .pot messages
       id: hash_after
-      run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/*.pot | sort | sha1sum)"
+      run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
       shell: bash
 
     - if: ${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}}
