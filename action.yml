@@ -59,6 +59,11 @@ runs:
       run: echo "::set-output name=updated::1"
       shell: bash
 
+    - if: ${{ steps.template_updated.outputs.updated == ''}}
+      name: Reset .pot file/file
+      run: git reset ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot
+      shell: bash
+
     - if: ${{ steps.template_updated.outputs.updated }}
       name: Update .po files
       run: find ${{ inputs.translation_folder }} -name ${{ inputs.translation_name }}.po -exec msgmerge --update {} --backup=none ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot \;
