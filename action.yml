@@ -31,7 +31,7 @@ runs:
 
     - name: "Check template file exists"
       id: template_exist
-      run: echo "::set-output name=exists::$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo "true")"
+      run: echo "::set-output name=exists::$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo true)"
       shell: bash
 
     - name: Hash current .pot messages
@@ -55,7 +55,8 @@ runs:
 
     - name: Set output value
       id: template_updated
-      run: echo "::set-output name=updated::${{!!int (steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash)}}"
+      if: ${{steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash}}
+      run: echo "::set-output name=updated::1"
       shell: bash
 
     - name: Update .po files
