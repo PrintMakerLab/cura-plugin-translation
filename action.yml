@@ -79,3 +79,4 @@ runs:
 
     - name: Event viewer
       run: echo "The ${{ github.event_name }} event triggered this step."
+      shell: bash
