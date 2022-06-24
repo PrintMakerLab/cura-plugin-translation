@@ -70,7 +70,10 @@ runs:
 
     - run: |
         for changed_file in ${{ steps.mo_update_neened.outputs.added_modified }}; do
-          echo "Do something with this ${changed_file}."
+          if [[ ${changed_file} ==  ${{ inputs.translation_name }}.po ]]
+          then
+            echo .po file
+          fi
         done
       shell: bash
 
