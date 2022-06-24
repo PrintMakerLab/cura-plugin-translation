@@ -78,5 +78,5 @@ runs:
       shell: bash
 
     - name: Event viewer
-      run: echo "The ${{ github.event_name }} event triggered this step."
+      run: echo "The ${{ github.event_name }} event triggered this step. ${{ github }}"
       shell: bash
