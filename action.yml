@@ -55,23 +55,23 @@ runs:
 
     - name: Set output value
       id: template_updated
-      run: echo "::set-output name=updated::${{ steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash }}"
+      run: echo "::set-output name=updated::!!int ${{ steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash }}"
       shell: bash
 
     - name: Update .po files
-      if: "${{steps.template_updated.outputs.updated}} == 'true'"
+      if: ${{steps.template_updated.outputs.updated}}
       run: find ${{ inputs.translation_folder }} -name ${{ inputs.translation_name }}.po -exec msgmerge --update {} --backup=none ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot \;
       shell: bash
 
     - name: Ensure LC_MESSAGES folder exists
-      if: "${{steps.template_updated.outputs.updated}} == 'true'" #добавить условие на изменение .po файлов
+      if: ${{steps.template_updated.outputs.updated}} #добавить условие на изменение .po файлов
       run: find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec mkdir -p {}/LC_MESSAGES \;
       shell: bash
 
     - name: Update .mo files
       id: locale_updated
-      if: "${{steps.template_updated.outputs.updated}} == 'true'" #добавить условие на изменение .po файлов
+      if: ${{steps.template_updated.outputs.updated}} #добавить условие на изменение .po файлов
       run: |
         find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec msgfmt {}/${{ inputs.translation_name }}.po -o {}/LC_MESSAGES/${{ inputs.translation_name }}.mo \;
-        echo "::set-output name=updated::true"
+        echo "::set-output name=updated::1"
       shell: bash
