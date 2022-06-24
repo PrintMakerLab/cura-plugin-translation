@@ -1,7 +1,7 @@
 name: 'Translate Cura plugin'
 description: 'Create and update translation of the Cura plugin'
 inputs:
-  translation_folder: # path for the translation directory usually i18n
+  translation_folder: # path to the translation directory usually i18n
     description: 'translation folder of the Cura plugin'
     required: true
     default: 'i18n'
@@ -24,6 +24,10 @@ runs:
     - uses: ConorMacBride/install-package@v1
       with:
         apt: gettext
+
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: "Ensure translation folder exists"
       run: mkdir -p "${{ inputs.translation_folder }}"
@@ -70,15 +74,12 @@ runs:
       shell: bash
 
     - if: ${{ steps.template_exist.outputs.exists }}
-      id: files
-      uses: jitterbit/get-changed-files@v1
-
-    - name: Check if .po files was changed by commit
       id: mo_update_neened
       run: |
-        for changed_file in ${{ steps.files.outputs.added_modified }}; do
-          if [[ ${changed_file} == *${{ inputs.translation_name }}.po ]]
+        for changed_po in `git diff-tree --no-commit-id --name-only -r ${{github.sha}}`; do
+          if [[ ${changed_po} == *${{ inputs.translation_name }}.po ]]
           then
+            echo ${changed_po} changed
             echo "::set-output name=needed::1"
           fi
         done
