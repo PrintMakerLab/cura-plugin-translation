@@ -15,9 +15,9 @@ outputs:
   template_updated:
     description: ".pot template updated"
     value: ${{ steps.template_updated.outputs.updated }}
-  # locales_updated:
-  #   description: ".mo file/files updated"
-  #   value: ${{ steps.TODO.outputs.TODO }}
+  locales_updated:
+    description: ".mo file/files updated"
+    value: ${{ steps.locale_updated.outputs.updated }}
 runs:
   using: "composite"
   steps:
@@ -34,7 +34,7 @@ runs:
       run: echo "::set-output name=exists::$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo "true")"
       shell: bash
 
-    - name: Hash current pot messages
+    - name: Hash current .pot messages
       if: ${{ steps.template_exist.outputs.exists }}
       id: hash_before
       run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
@@ -48,7 +48,7 @@ runs:
       run: xgettext --package-name='${{ inputs.plugin_name }}' -o ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot --join-existing --language=javascript --from-code=UTF-8 -ki18n:1 -ki18nc:1c,2 -ki18np:1,2 -ki18ncp:1c,2,3 $(find -L . -name \*.qml)
       shell: bash
 
-    - name: Hash new pot messages
+    - name: Hash new .pot messages
       id: hash_after
       run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/*.pot | sort | sha1sum)"
       shell: bash
@@ -56,4 +56,22 @@ runs:
     - name: Set output value
       id: template_updated
       run: echo "::set-output name=updated::${{ steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash }}"
+      shell: bash
+
+    - name: Update .po files
+      if: ${{ steps.template_updated.outputs.updated }}
+      run: find ${{ inputs.translation_folder }} -name ${{ inputs.translation_name }}.po -exec msgmerge --update {} --backup=none ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot \;
+      shell: bash
+
+    - name: Ensure LC_MESSAGES folder exists
+      if: ${{ steps.template_updated.outputs.updated }} #добавить условие на изменение .po файлов
+      run: find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec mkdir -p {}/LC_MESSAGES \;
+      shell: bash
+
+    - name: Update .mo files
+      id: locale_updated
+      if:  ${{ steps.template_updated.outputs.updated }} #добавить условие на изменение .po файлов
+      run: |
+        find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec msgfmt {}/${{ inputs.translation_name }}.po -o {}/LC_MESSAGES/${{ inputs.translation_name }}.mo \;
+        echo "::set-output name=updated::true"
       shell: bash
