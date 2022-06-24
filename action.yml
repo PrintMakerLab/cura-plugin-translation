@@ -69,7 +69,7 @@ runs:
       uses: jitterbit/get-changed-files@v1
 
     - run: |
-        for ${{ inputs.translation_folder }}/**/${{ inputs.translation_name }}.po in ${{ steps.mo_update_neened.outputs.added_modified }}; do
+        for ${{ inputs.translation_name }}.po in ${{ steps.mo_update_neened.outputs.added_modified }}; do
           echo "Do something with this ${changed_file}."
         done
       shell: bash
