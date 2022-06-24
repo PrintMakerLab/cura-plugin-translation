@@ -55,7 +55,7 @@ runs:
 
     - name: Set output value
       id: template_updated
-      run: echo "::set-output name=updated::!!int ${{ steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash }}"
+      run: echo "::set-output name=updated::${{!!int (steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash)}}"
       shell: bash
 
     - name: Update .po files
