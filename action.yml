@@ -35,13 +35,13 @@ runs:
 
     - name: "Check template file exists"
       id: template_exist
-      run: echo "::set-output name=exists::$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo true)"
+      run: echo "exists=$([[ -f ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot ]] && echo true)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Hash current .pot messages
       if: ${{ steps.template_exist.outputs.exists }}
       id: hash_before
-      run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
+      run: echo "i18n_hash=$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Update .pot from Python files
@@ -54,13 +54,13 @@ runs:
 
     - name: Hash new .pot messages
       id: hash_after
-      run: echo "::set-output name=i18n_hash::$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)"
+      run: echo "i18n_hash=$(grep '^msgid' ${{ inputs.translation_folder }}/${{ inputs.translation_name }}.pot | sort | sha1sum)" >> $GITHUB_OUTPUT
       shell: bash
 
     - if: ${{ steps.hash_after.outputs.i18n_hash != steps.hash_before.outputs.i18n_hash }}
       name: Set output value
       id: template_updated
-      run: echo "::set-output name=updated::1"
+      run: echo "updated=1" >> $GITHUB_OUTPUT
       shell: bash
 
     - if: ${{ steps.template_updated.outputs.updated == ''}}
@@ -80,7 +80,7 @@ runs:
           if [[ ${changed_po} == *${{ inputs.translation_name }}.po ]]
           then
             echo ${changed_po} changed
-            echo "::set-output name=needed::1"
+            echo "needed=1" >> $GITHUB_OUTPUT
           fi
         done
       shell: bash
@@ -95,5 +95,5 @@ runs:
       id: locale_updated
       run: |
         find ${{ inputs.translation_folder }} -maxdepth 1 -name '*_*' -exec msgfmt {}/${{ inputs.translation_name }}.po -o {}/LC_MESSAGES/${{ inputs.translation_name }}.mo \;
-        echo "::set-output name=updated::1"
+        echo "updated=1" >> $GITHUB_OUTPUT
       shell: bash
