@@ -41,7 +41,7 @@ jobs:
       
       - name: "Translation"
         id: translation
-        uses: Elkin-Vasily/cura-plugin-translation@main
+        uses: PrintMakerLab/cura-plugin-translation@main
         with:
           translation_folder: 'i18n'
           translation_name: 'mksplugin'
