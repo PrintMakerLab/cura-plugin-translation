@@ -37,11 +37,11 @@ jobs:
      runs-on: "ubuntu-latest"
      
      steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: "Translation"
         id: translation
-        uses: Elkin-Vasily/cura-plugin-translation@main
+        uses: PrintMakerLab/cura-plugin-translation@main
         with:
           translation_folder: 'i18n'
           translation_name: 'mksplugin'
